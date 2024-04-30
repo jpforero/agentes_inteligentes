@@ -54,23 +54,36 @@ def read_text_in_plate(image):
     if image is None:
         return "Error: No se pudo cargar la imagen."
 
-
     # Inicializa EasyOCR
     reader = easyocr.Reader(['en'])
 
     # Reconoce el texto en la región de interés (ROI)
     result = reader.readtext(image)
 
+    # Imprime los resultados para inspeccionar su estructura
+    print("Resultados de EasyOCR:")
+    print(result)
+
+    # Filtra manualmente los caracteres grandes
+    large_text = []
+    for text in result:
+        bbox = text[0]  # Bounding box del texto
+        x1, y1 = bbox[0]  # Coordenadas x1, y1
+        x2, y2 = bbox[2]  # Coordenadas x2, y2
+        width = x2 - x1  # Ancho del bounding box
+        height = y2 - y1  # Alto del bounding box
+        if height > 40:  # Filtra caracteres con altura mayor a 40 píxeles
+            large_text.append(text[1])
+
     # Extrae y concatena el texto reconocido
-    recognized_text = ' '.join([text[1] for text in result])
+    recognized_text = ' '.join(large_text)
 
     return recognized_text
 
 
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    url='carros/carro1.jpg'
+    url='carros/carro2.jpg'
     imagenR = encontrar_cordenadas(url)
     # Lee el texto dentro del cuadro delimitador de la placa
     plate_text = read_text_in_plate(imagenR)
